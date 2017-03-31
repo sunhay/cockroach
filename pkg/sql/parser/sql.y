@@ -3411,9 +3411,13 @@ numeric:
   }
 | FLOAT opt_float
   {
-    prec, err := $2.numVal().AsInt64()
+    nv := $2.numVal()
+    prec, err := nv.AsInt64()
     if err != nil {
       sqllex.Error(err.Error())
+      return 1
+    } else if len(nv.OrigString) > 0 && prec == 0 {
+      sqllex.Error("precision for type float must be at least 1 bit")
       return 1
     }
     $$.val = newFloatColType(int(prec))
